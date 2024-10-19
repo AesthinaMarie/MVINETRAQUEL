@@ -1,7 +1,7 @@
 import React, { useState,useEffect, useContext} from 'react'
-import HomePage from './pages/homepage'
-import LoginPage from './pages/loginpage'
-import TBI_ADMIN from './pages/tbiAdmin'
+import HomePage from './homepage'
+import LoginPage from './loginpage'
+import TBI_ADMIN from './tbiAdmin'
 import {Routes,Route, Navigate} from 'react-router-dom'
 import { AuthContext } from './component/authContext'
 
