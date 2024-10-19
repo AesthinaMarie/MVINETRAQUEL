@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState ,useContext} from "react";
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCircle, Bell, MessageSquare, ChevronDown, Menu } from "lucide-react";
-
+import { logoutUser } from "./backend";
+import { AuthContext } from "../component/authContext";
 const SuperNavBar = ({ toggleDrawer }) => {
+    const {dispatch} = useContext(AuthContext)
     const navigate = useNavigate();
     const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
 
@@ -11,8 +13,15 @@ const SuperNavBar = ({ toggleDrawer }) => {
         setAccountDropdownOpen(!accountDropdownOpen);
     };
 
-    const handleLogout = () => {
-        console.log("Logging out...");
+    const handleLogout = async () => {
+        try {
+            await logoutUser();
+            dispatch({ type: "LOGOUT"});
+            localStorage.removeItem('User');
+            console.log("Logout Succesfully");
+        } catch (error) {
+            console.error("Error Logging out :",error);
+        }
         navigate('/login');
     };
 

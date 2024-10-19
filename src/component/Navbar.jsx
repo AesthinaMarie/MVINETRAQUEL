@@ -1,29 +1,52 @@
 
 import {Menu,X} from "lucide-react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import React from 'react';
 import Logo from "../assets/logo.png";
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from "./authContext";
 
 
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const { currentUser, userRole } = useContext(AuthContext);
     const [mobileDrawerOpen,setMobileDrawerOpen] = useState(false);
     const toggleNavbar = () => {
         setMobileDrawerOpen(!mobileDrawerOpen);
     };
 
     const navItems = [
-        {label: "MVINET",href :"#"},
-        {label: "Startups",href :"#"},
-        {label: "Events",href :"#"},
+        {label: "MVINET",href :"/"},
+        {label: "Startups",href :"/"},
+        {label: "Events",href :"#/"},
     ];
 
 
-    const handleLogin = () =>{
-        navigate('/login');
-    }
+    const handleRoleBasedNavigation = () => {
+        console.log(currentUser,userRole)
+        if (currentUser) {
+            switch (userRole) {
+                case "1":
+                    navigate('/s-admin');
+                    break;
+                case "2":
+                    navigate('/tbi-admin');
+                    break;
+                case "3":
+                    navigate('/user-page');
+                    break;
+                case "4":
+                    navigate('/investor-page');
+                    break;
+                default:
+                    navigate('/login');
+                    break;
+            }
+        } else{
+            navigate('/login');
+        }
+    };
 
 
   return (
@@ -31,7 +54,7 @@ const Navbar = () => {
         <div className="container px-4 mx-auto relative text-sm">
             <div className='flex justify-between items-center'>
                 <div className='flex items-center flex-shrink-0'>
-                    <a href='#'><img  className="h-12 w-auto mr-2"src={Logo}alt=''></img></a>
+                    <a href='/'><img  className="h-12 w-auto mr-2"src={Logo}alt=''></img></a>
                 </div>
                 <ul className='hidden lg:flex ml-14 space-x-12'>
                     {navItems.map((item,index) => (
@@ -41,10 +64,10 @@ const Navbar = () => {
                     }
                     </ul>
                     <div className="hidden lg:flex justify-center space-x-5 items-center">
-                        <a href="/login" className='py-2 px-3 border rounded-md'>
-                            Login
-                        </a>
-                        <a href="#" className='bg-gradient-to-r from-blue-500 to-blue-800 text-white py-2 px-3 rounded-md'>
+                    <button onClick={handleRoleBasedNavigation} className='py-2 px-3 border rounded-md'>
+                     {currentUser != null ? "Go To Dashboard" : "Login"}
+                    </button>
+                        <a href="/signUp" className='bg-gradient-to-r from-blue-500 to-blue-800 text-white py-2 px-3 rounded-md'>
                             Register
                         </a>
                     </div>
@@ -61,8 +84,10 @@ const Navbar = () => {
                     ))}
                 </ul>
                 <div className="flex space-x-6">
-                    <a href="/login" className="py-2 px-3 border rounded-md text-white">Sign In</a>
-                    <a href="#" className='bg-gradient-to-r from-blue-500 to-blue-800 text-white py-2 px-3 rounded-md'>
+                <button onClick={handleRoleBasedNavigation} className='py-2 px-3 border rounded-md text-white'>
+                    {currentUser != null ? "Go To Dashboard" : "Login"}
+                    </button>
+                    <a href="/signUp" className='bg-gradient-to-r from-blue-500 to-blue-800 text-white py-2 px-3 rounded-md'>
                     Register</a>
                 </div>
 

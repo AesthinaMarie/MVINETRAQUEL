@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Plus, XCircle, School, Mail, Calendar, Delete } from 'lucide-react';
-import { doc, setDoc, collection, getDocs, deleteDoc } from "firebase/firestore"; 
+import { doc, setDoc, collection, getDocs, deleteDoc,where,query} from "firebase/firestore"; 
 import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
-import { db, auth } from "../component/firebase";
+import { db, auth } from "./firebase";
+
 
 const universities = ['Mindoro State University(MinSu)', 'Marinduque State College(MSC)', 'Romblon State University(RSU)',"Palawan State University(PSU)","Western Philippine University(WPU)","Occidental Mindoro State","College()"];
 const statuses = ['Active', 'Inactive'];
@@ -24,7 +25,10 @@ const TBIAdminContent = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, "users"));
+                // Create a query to fetch users where userType is "userType2"
+                const q = query(collection(db, "users"), where("userType", "==", "2"));
+
+                const querySnapshot = await getDocs(q);
                 const userList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setUsers(userList);
             } catch (err) {
@@ -36,10 +40,13 @@ const TBIAdminContent = () => {
     }, []);
 
     const toggleModal = () => {
+        if (isModalOpen) {
+            // Only reset the form when closing the modal
+            setFormData({ university: '', email: '', dateRegistered: '', status: '' });
+            setEditUserId(null); // Reset edit user ID
+        }
         setIsModalOpen(!isModalOpen);
         setError('');
-        setFormData({ university: '', email: '', dateRegistered: '', status: '' });
-        setEditUserId(null); // Reset edit user ID
     };
 
     const handleInputChange = (e) => {
@@ -55,7 +62,7 @@ const TBIAdminContent = () => {
         setError('');
 
         const { university, email, dateRegistered, status } = formData;
-        const userType = 2
+        const userType = "2"
         try {
             if (editUserId) {
                 // Update existing user
@@ -86,14 +93,16 @@ const TBIAdminContent = () => {
     };
 
     const handleEditClick = (user) => {
+        console.log(user);
         setEditUserId(user.id);
+
         setFormData({
             university: user.university,
             email: user.email,
             dateRegistered: user.dateRegistered,
             status: user.status,
         });
-        toggleModal();
+        toggleModal(true);
     };
 
     const handleDeleteClick = async (userId) => {
@@ -210,16 +219,21 @@ const TBIAdminContent = () => {
                             </label>
 
                             <label className="block mb-4">
-                                <span className="text-gray-700">Email</span>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    className="border border-gray-300 rounded-md p-2 w-full"
-                                    required
-                                />
-                            </label>
+    <span className="text-gray-700"> Email {editUserId && <span className="text-red-500">(Can't Be Edited)</span>}</span>
+                        <div className="relative">
+                            
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                className={`border border-gray-300 rounded-md p-2 w-full`}
+                                disabled={!!editUserId} // Disable input when editing
+                                required
+                            />
+                        </div>
+                    </label>
+
 
                             <label className="block mb-4">
                                 <span className="text-gray-700">Date Registered</span>
